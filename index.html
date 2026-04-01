@@ -2,20 +2,27 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>test</title>
+<title>ok</title>
 </head>
 <body>
 
 <script>
-console.log("start");
+(async () => {
+    console.log("START");
 
-fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
-    method: "POST",
-    mode: "no-cors",
-    body: "hello=1"
-});
+    try {
+        await fetch("https://webhook.site/6729bab1-8bc8-475e-8a94-1bb9e1c033d2", {
+            method: "POST",
+            mode: "no-cors",
+            body: "test=123"
+        });
 
-console.log("sent");
+        console.log("SENT");
+    } catch(e) {
+        console.log("ERROR", e);
+    }
+
+})();
 </script>
 
 </body>
